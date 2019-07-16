@@ -1,4 +1,4 @@
-# Android Broadcast Reciever
+# Android Broadcast Receiver
 
 
 
@@ -6,11 +6,39 @@ Android Sandbox
 
 ![](../assets/4weeks/android_sandbox.jpg)
 
+**7/15 스터디 중 질문**
+
+**Q. Sandbox 란?**
+
+> Android 앱 샌드 박스는 앱 데이터와 코드 실행을 다른 앱과 분리함
+>
+> AndroidManifest에서 android:targetSandboxVersion로 그 레벨을 조정할 수 있음.
+>
+> https://developer.android.com/training/articles/security-tips
+>
+> https://developer.android.com/guide/topics/manifest/manifest-element
+
+
+
 Android 4대 컴포넌트
 
 ![](../assets/4weeks/AndroidComponents.png)
 
 (https://j07051.tistory.com/279)
+
+**7/15 스터디 중 질문**
+
+**Q. Notfication 및 토스트가 같이 있는 이유는?**
+
+> 블로그 포스팅의 정리 내용은 아래와 같음.
+>
+>   액티비티를 제외한 다른 애플리케이션 구성 요소(이하 컴포넌트)들은 별도의 UI(User Interface)를 갖고 있지 않기에 사용자가 눈으로 확인하기가 어렵습니다. 따라서 서비스와 브로드캐스트 리시버는 알림 메시지(Notification)나 토스트(Toast)의 도움을 받아 동작 여부를 사용자에게 알려줍니다. 콘텐트 프로바이더는 애플리케이션 간 데이터 공유를 위한 것으로, 따로 사용자에게 동작 여부를 알려줄 필요가 없습니다.
+>
+> 출처: https://j07051.tistory.com/279 [흘러간다...]  
+
+
+
+## Broadcast Receiver?
 
 >A broadcast receiver is a component that enables the system to deliver events to the app outside of a regular user flow, allowing the app to respond to system-wide broadcast announcements. Because broadcast receivers are another well-defined entry into the app, the system can deliver broadcasts even to apps that aren't currently running. So, for example, an app can schedule an alarm to post a notification to tell the user about an upcoming event... and by delivering that alarm to a BroadcastReceiver of the app, there is no need for the app to remain running until the alarm goes off. Many broadcasts originate from the system—for example, a broadcast announcing that the screen has turned off, the battery is low, or a picture was captured. Apps can also initiate broadcasts—for example, to let other apps know that some data has been downloaded to the device and is available for them to use. Although broadcast receivers don't display a user interface, they may create a status bar notification to alert the user when a broadcast event occurs. More commonly, though, a broadcast receiver is just a gateway to other components and is intended to do a very minimal amount of work. For instance, it might schedule a JobService to perform some work based on the event with JobScheduler
 >
@@ -61,9 +89,25 @@ android.intent.action.BOOT_COMPLETED
 ...
 ```
 
+**7/15 스터디 중 질문**
 
+**Q. OS 버전 정보 같은 것도 얻어오는 것인지? **
 
-### Custom Broadcasts
+> 제조사에서 Android Framework를 커스텀을 함으로 OS 버전명이 단말마다 다를수도 있을 수 있을듯.
+>
+> 하지만 버전 정보 같은 정적인 정보는 Broadcast가 아니라 직접 메서드를 제공해서 받아올 것임.
+>
+> Broadcast Receiver는 기기의 상태 변화나 특정 작업 이벤트시를 App에서 인지하기 위해 사용하므로 성격임.
+
+**Q. BASTTERY 관련 기능들 설명? **
+
+> BATTERY_CHANGED 는 현재 충전 상태 확인시
+>
+> BATTERY_LOW 는 저전력시
+>
+> BATTERY_OKAY 는 정상전력 회복시 (80%이상?)
+>
+> https://developer.android.com/training/monitoring-device-state/battery-monitoring?hl=ko
 
 Broadcasts를 보낼 App에서 사용자 정의 Broadcasts를 보낼 수 있음.
 
@@ -95,6 +139,22 @@ App Manifest에 Broadcast Receiver가 선언이 되어 있다면 System에서 Br
    </receiver>
    ```
 
+   **7/15 스터디 중 질문**
+   
+   **Q. android:exported 란?**
+   
+   > true 일 경우 외부로부터 메시지를 수신, false인 경우 동일 App에서 보낸 메시지만 수신
+   >
+   > 디폴트 값은 intent-filter 유무에 따라 결정됨.
+   >
+   > intent-filter가 있다면 true, 없다면 false 가 디폴트 값임.
+   >
+   > 필터가 없다는 것은 정확한 클래스 명을 지정하는 Intent 객체로만 호출될 수 있으므로 내부 용으로만 사용한다는 의미임.
+   >
+   > 이 속성 외에도 permission 등을 사용하여 외부 엔티티를 제한할 수 있음.
+   >
+   > https://developer.android.com/guide/topics/manifest/receiver-element
+   
 2. BroadcastReceiver 서브 클래스에 onReceive(Context, Intent) 를 구현.
 
    ```kotlin
@@ -116,6 +176,20 @@ App Manifest에 Broadcast Receiver가 선언이 되어 있다면 System에서 Br
 > (Broadcast가 해당 App을 특별히 지정하지 않는다면)
 > https://developer.android.com/guide/components/broadcast-exceptions.html
 > 제한으로부터 제외된 몇몇 암시적 Broadcast 는 제외.
+
+
+
+**7/15 스터디 중 질문**
+
+**Q. Manifest에 암시적 Broadcast를 사용 못하게 하는 이유는? **
+
+> System Broadcast의 경우 Android System에서 등록한 App에 publish해줘야 하므로 App이 많을 경우 그 부하가 심해짐.
+>
+> 예를 들어 단말에 App이 200개가 깔려있는 상태에서 동일한 System Broadcast를 등록을 한다면 이벤트 발생시마다 Android System은 App의 상태와 무관하게 Broadcast를 날려줘야 함.
+>
+> 이런 문제를 해결하고자 App 상태가 활성화되는 경우에만 등록하고 사용하는 방향을 권장하는 것으로 보임.
+
+
 
 System Package Manager는 App이 설치될 때 Receiver를 등록.
 
@@ -144,6 +218,8 @@ System은 Broadcast를 처리할 때마다 BroadcastReceiver 컴포넌트 객체
    registerReceiver(br, filter)
    ```
 
+   위 소스 실행 후 단말의 airplane 모드를 on/off 시 로그
+
    ```verilog
    2019-07-15 17:00:36.138 12172-12172/com.example.brsample D/MyBroadcastReceiver: Action: android.intent.action.AIRPLANE_MODE
        URI: intent:#Intent;action=android.intent.action.AIRPLANE_MODE;launchFlags=0x10;B.state=true;end
@@ -159,7 +235,8 @@ System은 Broadcast를 처리할 때마다 BroadcastReceiver 컴포넌트 객체
 
 3. Broadcast 를 받는 것을 멈출 때는 unregisterReceiver(BroadcastReceiver) 를 호출함.
    Receiver가 필요 없거나 Context가 유효하지 않을때 unregister를 해줘야 함.
-
+unregister를 안하고 Context가 종료될 경우 유저에게 Crash가 보이거나 하진 않지만 아래와 같은 로그가 찍힘.
+   
    ```verilog
    2019-07-15 17:07:43.217 15288-15288/com.example.brsample E/ActivityThread: Activity com.example.brsample.MainActivity has leaked IntentReceiver com.example.brsample.MyBroadcastReceiver@55831d5 that was originally registered here. Are you missing a call to unregisterReceiver()?
        android.app.IntentReceiverLeaked: Activity com.example.brsample.MainActivity has leaked IntentReceiver com.example.brsample.MyBroadcastReceiver@55831d5 that was originally registered here. Are you missing a call to unregisterReceiver()?
@@ -283,6 +360,14 @@ Intent().also { intent ->
 
 
 
+**7/15 스터디 중 질문**
+
+**Q. 왜 also를 사용했을까? **
+
+> let, run, with, apply 등도 있지만 어떤 것을 써도 이상하진 않을 것으로 보임.
+
+
+
 ### 2. sendBroadcast
 
 ```java
@@ -313,6 +398,16 @@ val intent = Intent("LocalBroadcastManagerTest")
 intent.putExtra("data1", "black")
 LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
 ```
+
+
+
+**7/15 스터디 중 질문**
+
+**Q. Local 에서 Broadcast를 쓸 일이 있는지? **
+
+> 서비스 시나리오에 따라 쓸 일이 많이 생길수도 있음.
+>
+> 예로 특정 액티비티들을 띄운 상태에서 동시에 데이터를 업데이트가 필요한 경우 등.
 
 
 
@@ -393,7 +488,20 @@ registerReceiver(receiver, filter, Manifest.permission.SEND_SMS, null )
 - 많은 앱이 매니페스트에서 동일한 Broadcast를 수신하도록 등록하면 시스템에서 많은 앱을 실행하게 되어 기기 성능과 사용자 환경에 상당한 영향을 미칠 수 있음.
   이를 방지하려면 매니페스트 선언보다 컨텍스트 등록을 사용하는 것이 좋음.
   때때로 Android 시스템 자체가 컨텍스트 등록 Receiver 사용을 강요함.
-  CONNECTIVITY_ACTION Broadcast는 컨텍스트로 등록한 Receiver에만 전달됨.
+  예를 들어 CONNECTIVITY_ACTION Broadcast는 컨텍스트로 등록한 Receiver에만 전달됨.
+
+
+
+**7/15 스터디 중 질문**
+
+**Q. Broadcast 전송시 매니페스트와 Context로 등록한 Receiver를 구분해 보낼 수 있는지? **
+
+> 동일한 Intent-filter를 사용 중이라면 구분할 수는 없음.
+>
+> 대신 intent-filter를 구분하거나 permission이나 setPackage 등으로 대상을 더 특정해 보내야 할 것으로 보임.
+
+
+
 - 중요한 정보를 암시적 인텐트를 사용하여 Broadcast 하지 말 것.
   정보는 Broadcast 수신이 등록된 어떤 앱에서 읽을 수 있음.
   Broadcast 받는 것을 제어하는 3가지 방법
@@ -430,9 +538,7 @@ registerReceiver(receiver, filter, Manifest.permission.SEND_SMS, null )
 - ACTION_NEW_PICTURE
 - ACTION_NEW_VIDEO
 
-App에서 registerReceiver() 메서드로 Broadcast 등록시 CONNECITIVY_ACTION 사용해야 함.
-
-Manifest 에서 Receiver 등록은 동작하지 않음.
+Manifest 에서 Receiver 등록은 동작하지 않으므로 App에서 registerReceiver() 메서드로 Broadcast 등록시 CONNECTIVITY_ACTION 사용해야 함.
 
 
 
