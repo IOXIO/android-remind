@@ -2,7 +2,7 @@
 
 
     * Android 애플리케이션의 마지막 4대 컴포넌트!!
-    * 다른 애플리케이션이 사용하도록 만든어진 것
+    * 다른 애플리케이션에서 사용하도록 만든어진 것
     * 표준 인터페이스를 제공하여 프로세스간 통신과 보안 데이터 엑세스 처리
     * Context 에서 ContentResolver 객체를 사용하여 접근
     * Android 에서 비디오/이미지/주소록 등에서 사용
@@ -17,9 +17,11 @@
 
 ![](https://developer.android.com/guide/topics/providers/images/content-provider-interaction.png)
 
-## 한번해보자... 
+### 데이터 읽기
 
-### 데이터가져오기
+1. 매니페스트에 권한 표시
+2. 쿼리 작성
+3. 쿼리결과를 커서 객체로 받아 작업
 
 - Permission 요청
 ```xml
@@ -95,8 +97,11 @@ cursor = contentResolver.query(
 
 ### 데이터 삽입
 
- * ContentResolver.insert()
-
+ 1. Uri 객체 생성
+ 2. 값을 저장하기 위한 ContentValues 생성
+ 3. ContentValudes.put() 으로 컬럼,값 입력
+ 4. getContentResolver.insert()
+ 
  ```kotlin
  // Defines a new Uri object that receives the result of the insertion
 Uri mNewUri;
@@ -122,7 +127,12 @@ mNewUri = getContentResolver().insert(
  ```
 
  ### 데이터 업데이트
- * ContentResolver.update()
+
+ 1. Uri 객체 생성
+ 2. 값을 저장하기 위한 ContentValues 생성
+ 3. ContentValudes.put() 으로 컬럼,값 입력
+ 4. getContentResolver.update()
+ 
  ```kotlin
  // Defines an object to contain the updated values
 ContentValues mUpdateValues = new ContentValues();
@@ -150,7 +160,9 @@ mRowsUpdated = getContentResolver().update(
  ```
 
 ### 데이터 삭제
- * ContentResolver.delete()
+ 1. 삭제할 행 조건을 selection으로 지정
+ 2. getContentResolver.delete()
+ 
  ```kotlin
 
 // Defines selection criteria for the rows you want to delete
@@ -171,5 +183,16 @@ mRowsDeleted = getContentResolver().delete(
  ```
 
 
-- String, int, long, float, double, 64KB 배열 BLOB 가능
+- String, int, long, float, double, 64KB 바이트배열 BLOB(Binary Large OBject) 가능
 - ContentResolver.getType() 으로 MIME 유형 확인 (vnd.android.cursor.item/phone_v2)
+
+## ContentProvider
+ * 예제로 보자
+
+
+## 링크
+https://developer.android.com/guide/topics/providers/content-provider-basics?hl=ko
+
+https://unikys.tistory.com/349
+
+https://colomy.tistory.com/92
