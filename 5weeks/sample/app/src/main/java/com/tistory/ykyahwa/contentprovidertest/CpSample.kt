@@ -77,4 +77,5 @@ class CpSample : ContentProvider() {
     override fun update(uri: Uri, @Nullable values: ContentValues?, @Nullable selection: String?, @Nullable selectionArgs: Array<String>?): Int {
         return 0
     }
+
 }

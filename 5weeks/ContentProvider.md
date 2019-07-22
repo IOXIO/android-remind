@@ -187,8 +187,56 @@ mRowsDeleted = getContentResolver().delete(
 - ContentResolver.getType() 으로 MIME 유형 확인 (vnd.android.cursor.item/phone_v2)
 
 ## ContentProvider
- * 예제로 보자
 
+ ### ContentProvider 필요한 경우
+  * 다른 애플리케이션에 복잡한 데이터나 파일을 제공하고자 하는 경우
+  * 사용자로 하여금 개발자의 앱에서 다른 앱으로 복잡한 데이터를 복사하도록 허용하고자 하는 경우
+  * 검색 프레임워크를 사용한 사용자 지정 검색 제안을 제공하고자 하는 경우
+ 
+ ### ContentProvider 구축
+  1. 데이터
+   * Sqlite, 파일, 네트워크 데이터 가능(AbstractThreadedSyncAdapter)
+   * BaseColumns._ID 기본키 사용
+   * 이미지같은 큰파일은 경로등 간접적 제공
+   * BLOB - JSON 구조, 프로토콜 버퍼
+  
+  2. URI 설계
+   * 권한 - com.example.<appname>.provider
+   * 경로 - com.example.<appname>.provider/table1
+   * ID 처리(_ID) - com.example.<appname>.provider/table1/10
+   * URI 패턴 
+     - *: 모든 길이의 모든 유효한 문자로 구성된 문자열과 일치합니다.
+     - #: 모든 길이의 숫자 문자로 구성된 문자열과 일치합니다.
+
+
+  3. ContentProvider 클래스
+   * 필수메서드
+     - query() - Cursor 반환, MatrixCursor(Object 반환)
+     - insert()
+     - update()
+     - delete()
+     - getType() - MIME 유형 반환
+     - getStreamTypes() - 파일 제공 시
+     - onCreate() - 초기화
+ 
+    * MIME
+      - 여러행 vnd.android.cursor.dir/vnd.com.example.provider.table1
+      - 행하나 vnd.android.cursor.item/vnd.com.example.provider.table1
+
+  4. 권한
+```
+    <permission android:name="com.ykyahwa.cptest.READ_DATABASE" android:protectionLevel="normal" />
+    <permission android:name="com.ykyahwa.cptest.WRITE_DATABASE" android:protectionLevel="normal" />
+```
+  5. Manifest <provider>
+  ```
+            <provider android:name=".CpSample"
+                  android:authorities="com.ykyahwa.cptest"
+                  android:exported="true"
+                  android:readPermission="com.ykyahwa.cptest.READ_DATABASE"
+                  android:writePermission="com.ykyahwa.cptest.WRITE_DATABASE"/>
+  ```
+ 
 
 ## 링크
 https://developer.android.com/guide/topics/providers/content-provider-basics?hl=ko
